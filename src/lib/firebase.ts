@@ -23,13 +23,17 @@ const app = hasValidConfig
   ? (getApps().length ? getApp() : initializeApp(firebaseConfig))
   : (getApps().length ? getApp() : initializeApp(firebaseConfig)); // still init so hooks don't crash
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const googleProvider = new GoogleAuthProvider();
+const isClient = typeof window !== 'undefined';
 
-googleProvider.addScope('profile');
-googleProvider.addScope('email');
+export const auth = isClient ? getAuth(app) : ({} as any);
+export const db = isClient ? getFirestore(app) : ({} as any);
+export const storage = isClient ? getStorage(app) : ({} as any);
+export const googleProvider = isClient ? new GoogleAuthProvider() : ({} as any);
+
+if (isClient) {
+  googleProvider.addScope('profile');
+  googleProvider.addScope('email');
+}
 
 export const getAnalyticsInstance = async () => {
   if (typeof window === 'undefined') return null;
