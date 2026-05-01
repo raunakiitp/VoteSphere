@@ -33,19 +33,14 @@ export default function PollingMap() {
 
   useEffect(() => {
     if (!apiKey || apiKey.includes('your_')) return;
-    let existing = document.getElementById('gm-script') as HTMLScriptElement;
-    
-    // If script exists but doesn't have places library, remove it
-    if (existing && !existing.src.includes('libraries=places')) {
-      existing.remove();
-      existing = null as any;
-    }
 
-    const init = () => {
+    // Define the callback globally before loading the script
+    const callbackName = 'initVoteSphereMap';
+    (window as any)[callbackName] = () => {
       setMapReady(true);
       if (!mapRef.current) return;
       const initialMap = new (window as any).google.maps.Map(mapRef.current, {
-        zoom: 12, center: { lat: 28.6139, lng: 77.2090 }, // Default: New Delhi
+        zoom: 12, center: { lat: 28.6139, lng: 77.2090 },
         styles: [
           { elementType: 'geometry', stylers: [{ color: '#0b1120' }] },
           { elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
@@ -60,16 +55,28 @@ export default function PollingMap() {
       setMap(initialMap);
     };
 
-    if (!existing) {
-      const sc = document.createElement('script');
-      sc.id = 'gm-script';
-      sc.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      sc.async = true;
-      sc.onload = init;
-      document.head.appendChild(sc);
-    } else if ((window as any).google && (window as any).google.maps.places) {
-      init();
+    // If already loaded, call the init directly
+    if ((window as any).google?.maps?.places) {
+      (window as any)[callbackName]();
+      return;
     }
+
+    // Remove any stale scripts without the callback to avoid duplicates
+    const existing = document.getElementById('gm-script');
+    if (existing) existing.remove();
+
+    const sc = document.createElement('script');
+    sc.id = 'gm-script';
+    sc.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=${callbackName}`;
+    sc.async = true;
+    sc.defer = true;
+    sc.onerror = () => console.error('Google Maps failed to load');
+    document.head.appendChild(sc);
+
+    return () => {
+      // Cleanup the global callback on unmount
+      delete (window as any)[callbackName];
+    };
   }, [apiKey]);
 
   const locate = () => {

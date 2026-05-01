@@ -33,22 +33,24 @@ const STATS = {
   ]
 };
 
+const FEATURE_HREFS = ['/journey', '/eligibility', '/map', '/documents', '/timeline', '/faq'];
+
 const FEATURES = {
   en: [
-    { icon: Bot,        title: 'AI Civic Guide',         desc: 'Gemini-powered assistant answering your election questions in real-time with bilingual support.',            color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/15' },
-    { icon: CheckSquare,title: 'Smart Eligibility Engine',desc: 'Instant eligibility assessment with AI probability scoring based on Indian electoral law.',                  color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/15' },
-    { icon: MapPin,     title: 'Polling Intelligence Map',desc: 'Locate nearby polling stations with crowd prediction levels and optimal voting time windows.',               color: 'text-cyan-400',    bg: 'bg-cyan-500/10 border-cyan-500/15' },
-    { icon: FileText,   title: 'Document Validator',      desc: 'Verify which of 12 ECI-approved documents you need and receive instant AI validation feedback.',             color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/15' },
-    { icon: Clock,      title: 'Live Election Timeline',  desc: 'Real-time countdown to Election Day with color-coded milestones and personalised deadline tracking.',        color: 'text-violet-400',  bg: 'bg-violet-500/10 border-violet-500/15' },
-    { icon: MessageCircle, title: 'AI FAQ Engine',        desc: 'Semantic search across curated election FAQs, or ask Gemini AI any civic question instantly.',              color: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/15' },
+    { icon: Bot,           title: 'AI Civic Guide',          desc: 'Gemini-powered assistant answering your election questions in real-time with bilingual support.',           color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/15' },
+    { icon: CheckSquare,   title: 'Smart Eligibility Engine', desc: 'Instant eligibility assessment with AI probability scoring based on Indian electoral law.',                 color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/15' },
+    { icon: MapPin,        title: 'Polling Intelligence Map', desc: 'Locate nearby polling stations with crowd prediction levels and optimal voting time windows.',              color: 'text-cyan-400',    bg: 'bg-cyan-500/10 border-cyan-500/15' },
+    { icon: FileText,      title: 'Document Validator',       desc: 'Verify which of 12 ECI-approved documents you need and receive instant AI validation feedback.',            color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/15' },
+    { icon: Clock,         title: 'Live Election Timeline',   desc: 'Real-time countdown to Election Day with color-coded milestones and personalised deadline tracking.',       color: 'text-violet-400',  bg: 'bg-violet-500/10 border-violet-500/15' },
+    { icon: MessageCircle, title: 'AI FAQ Engine',            desc: 'Semantic search across curated election FAQs, or ask Gemini AI any civic question instantly.',             color: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/15' },
   ],
   hi: [
-    { icon: Bot,        title: 'AI नागरिक गाइड',         desc: 'रीयल-टाइम में द्विभाषी समर्थन के साथ आपके चुनाव संबंधी सवालों के जवाब देने वाला Gemini-संचालित सहायक।',            color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/15' },
-    { icon: CheckSquare,title: 'स्मार्ट पात्रता इंजन',desc: 'भारतीय चुनाव कानून के आधार पर AI प्रायिकता स्कोरिंग के साथ त्वरित पात्रता मूल्यांकन।',                  color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/15' },
-    { icon: MapPin,     title: 'मतदान मानचित्र',desc: 'भीड़ की भविष्यवाणी और मतदान के इष्टतम समय के साथ आस-पास के मतदान केंद्र खोजें।',               color: 'text-cyan-400',    bg: 'bg-cyan-500/10 border-cyan-500/15' },
-    { icon: FileText,   title: 'दस्तावेज़ सत्यापन',      desc: 'सत्यापित करें कि आपको 12 ECI-अनुमोदित दस्तावेज़ों में से किसकी आवश्यकता है और त्वरित प्रतिक्रिया प्राप्त करें।',             color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/15' },
-    { icon: Clock,      title: 'लाइव चुनाव समयरेखा',  desc: 'रंग-कोडित मील के पत्थर और व्यक्तिगत समय सीमा ट्रैकिंग के साथ चुनाव दिवस की वास्तविक समय की उलटी गिनती।',        color: 'text-violet-400',  bg: 'bg-violet-500/10 border-violet-500/15' },
-    { icon: MessageCircle, title: 'AI सामान्य प्रश्न इंजन',        desc: 'चुनाव संबंधी सामान्य प्रश्नों में खोजें, या Gemini AI से कोई भी नागरिक प्रश्न तुरंत पूछें।',              color: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/15' },
+    { icon: Bot,           title: 'AI नागरिक गाइड',          desc: 'रीयल-टाइम में द्विभाषी समर्थन के साथ आपके चुनाव संबंधी सवालों के जवाब देने वाला Gemini-संचालित सहायक।',           color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/15' },
+    { icon: CheckSquare,   title: 'स्मार्ट पात्रता इंजन',    desc: 'भारतीय चुनाव कानून के आधार पर AI प्रायिकता स्कोरिंग के साथ त्वरित पात्रता मूल्यांकन।',                 color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/15' },
+    { icon: MapPin,        title: 'मतदान मानचित्र',          desc: 'भीड़ की भविष्यवाणी और मतदान के इष्टतम समय के साथ आस-पास के मतदान केंद्र खोजें।',              color: 'text-cyan-400',    bg: 'bg-cyan-500/10 border-cyan-500/15' },
+    { icon: FileText,      title: 'दस्तावेज़ सत्यापन',       desc: 'सत्यापित करें कि आपको 12 ECI-अनुमोदित दस्तावेज़ों में से किसकी आवश्यकता है और त्वरित प्रतिक्रिया प्राप्त करें।', color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/15' },
+    { icon: Clock,         title: 'लाइव चुनाव समयरेखा',     desc: 'रंग-कोडित मील के पत्थर और व्यक्तिगत समय सीमा ट्रैकिंग के साथ चुनाव दिवस की वास्तविक समय की उलटी गिनती।',       color: 'text-violet-400',  bg: 'bg-violet-500/10 border-violet-500/15' },
+    { icon: MessageCircle, title: 'AI सामान्य प्रश्न इंजन',  desc: 'चुनाव संबंधी सामान्य प्रश्नों में खोजें, या Gemini AI से कोई भी नागरिक प्रश्न तुरंत पूछें।',             color: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/15' },
   ]
 };
 
@@ -84,8 +86,8 @@ export default function HomePage() {
 
   useEffect(() => {
     completeStage('awareness');
-    unlockBadge({ id: 'awareness_done', name: 'Informed Voter', desc: 'Completed Awareness', emoji: '' });
-    if (user) unlockBadge({ id: 'first_login', name: 'Civic Pioneer', desc: 'Joined VoteSphere', emoji: '' });
+    unlockBadge({ id: 'awareness_done', name: 'Informed Voter', description: 'Completed Awareness', emoji: '' });
+    if (user) unlockBadge({ id: 'first_login', name: 'Civic Pioneer', description: 'Joined VoteSphere', emoji: '' });
   }, [user]);
 
   const t = TEXT[language];
@@ -160,14 +162,22 @@ export default function HomePage() {
             <p className="text-slate-500 mt-2 text-sm">{t.featSub}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {FEATURES[language].map(({ icon: Icon, title, desc, color, bg }) => (
-              <div key={title} className="card-hover p-5">
-                <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 ${bg}`}>
+            {FEATURES[language].map(({ icon: Icon, title, desc, color, bg }, i) => (
+              <Link
+                key={title}
+                href={FEATURE_HREFS[i]}
+                className="card-hover p-5 block group cursor-pointer"
+              >
+                <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${bg}`}>
                   <Icon size={18} className={color} />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{title}</h3>
+                <h3 className="font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">{title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
-              </div>
+                <div className="flex items-center gap-1 mt-3 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className={color}>Explore</span>
+                  <ArrowRight size={11} className={color} />
+                </div>
+              </Link>
             ))}
           </div>
         </div>

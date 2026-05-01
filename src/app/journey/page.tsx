@@ -10,7 +10,17 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const STAGE_CONTENT = {
+interface Stage {
+  icon: any;
+  title: string;
+  desc: string;
+  steps: string[];
+  next: string | null;
+  link?: string;
+  btn?: string;
+}
+
+const STAGE_CONTENT: Record<string, Stage> = {
   awareness: {
     icon: Info,
     title: 'Awareness & Education',

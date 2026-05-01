@@ -9,6 +9,9 @@ export default function AppProviders({ children }: { children: React.ReactNode }
   const { setUser, highContrast, largeText, theme } = useVoteSphereStore();
 
   useEffect(() => {
+    // Guard: only subscribe to auth state on the client
+    if (typeof window === 'undefined') return;
+    
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser({
