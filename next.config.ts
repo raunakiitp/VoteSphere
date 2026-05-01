@@ -70,7 +70,7 @@ const nextConfig: NextConfig = {
 
   // ── Performance: Experimental features ───────────────────────────
   experimental: {
-    optimizePackageImports: ['lucide-react', 'firebase', '@google/generative-ai'],
+    optimizePackageImports: ['lucide-react'],
   },
 };
 
