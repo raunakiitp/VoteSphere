@@ -58,7 +58,11 @@ ${language === 'hi' ? 'User prefers Hindi. Respond in Hindi.' : 'Respond in Engl
 
     return NextResponse.json({ reply });
   } catch (err: any) {
-    console.error('Chat API error:', err.message);
-    return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 });
+    const msg = err?.message || String(err);
+    console.error('[Chat API] Gemini error:', msg);
+    return NextResponse.json(
+      { error: msg.includes('API key') ? 'API key error' : 'AI service unavailable' },
+      { status: 503 }
+    );
   }
 }

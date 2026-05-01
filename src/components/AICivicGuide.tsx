@@ -55,8 +55,10 @@ export default function AICivicGuide() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg, language, history: messages.slice(-6).map(m => ({ role: m.role, content: m.content })) }),
       });
-      if (!res.ok) throw new Error();
-      const { reply } = await res.json();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      const { reply } = data;
+      if (!reply) throw new Error('Empty response from AI');
       const aiMsg: ChatMessage = { id: genId(), role: 'assistant', content: reply, timestamp: new Date(), language };
       addMessage(aiMsg);
       if (voice && 'speechSynthesis' in window) {
@@ -66,8 +68,11 @@ export default function AICivicGuide() {
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utt);
       }
-    } catch {
-      toast.error('Could not get a response. Please try again.');
+    } catch (err: any) {
+      console.error('[AI Chat Error]', err);
+      toast.error(err.message?.includes('503') || err.message?.includes('unavailable')
+        ? 'AI service is temporarily busy. Please try again in a moment.'
+        : 'Could not get a response. Please try again.');
     } finally {
       setLoading(false);
       inputRef.current?.focus();
