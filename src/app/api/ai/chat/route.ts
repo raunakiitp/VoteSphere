@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { askGemini } from '@/lib/gemini';
+import { SYSTEM_PROMPTS } from '@/lib/prompts';
+import { handleApiError } from '@/lib/error-handler';
 
-// Rate limiting (simple in-memory)
+// Rate limiting (simple in-memory) - In production, use Redis or similar
 const requestLog = new Map<string, number[]>();
 const RATE_LIMIT = 20; // requests per minute
+
+const chatSchema = z.object({
+  message: z.string().min(1).max(1000),
+  language: z.enum(['en', 'hi']).default('en'),
+  history: z.array(z.object({
+    role: z.enum(['user', 'assistant']),
+    content: z.string()
+  })).optional().default([])
+});
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -15,54 +27,25 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
 
   if (!checkRateLimit(ip)) {
     return NextResponse.json({ error: 'Rate limit exceeded. Please wait.' }, { status: 429 });
   }
 
   try {
-    const { message, language, history } = await req.json();
+    const body = await req.json();
+    const { message, language, history } = chatSchema.parse(body);
 
-    if (!message || typeof message !== 'string') {
-      return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
-    }
-
-    const sanitized = message.trim().substring(0, 1000);
-
-    const historyContext = history?.length
-      ? `\n\nConversation history:\n${history.map((h: { role: string; content: string }) => `${h.role}: ${h.content}`).join('\n')}\n\nCurrent question:`
+    const historyContext = history.length
+      ? `\n\nConversation history:\n${history.map(h => `${h.role}: ${h.content}`).join('\n')}\n\nCurrent question:`
       : '';
 
-    const systemContext = `You are VoteSphere's AI Civic Guide — India's premier election assistance AI powered by Google Gemini.
-You are an expert on:
-- Indian electoral system and Election Commission of India (ECI)
-- Voter registration, EPIC cards, and electoral rolls
-- Polling procedures, EVMs, and VVPATs
-- Candidate eligibility and party systems
-- Voter rights and Model Code of Conduct
-- State and General election processes
-- How to file complaints and report violations
-
-Communication style:
-- Be concise, accurate, and encouraging
-- If language is "hi", respond in Hindi (Devanagari script)
-- Always promote civic participation
-- For sensitive topics (candidates, parties), remain neutral
-- Format responses with bullet points for clarity when listing items
-- End with an encouraging civic message when appropriate
-
-${language === 'hi' ? 'User prefers Hindi. Respond in Hindi.' : 'Respond in English.'}`;
-
-    const reply = await askGemini(historyContext ? `${historyContext} ${sanitized}` : sanitized, systemContext);
+    const systemContext = SYSTEM_PROMPTS.chat(language);
+    const reply = await askGemini(historyContext ? `${historyContext} ${message}` : message, systemContext);
 
     return NextResponse.json({ reply });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[Chat API] Gemini error:', msg);
-    return NextResponse.json(
-      { error: msg.includes('API key') ? 'API key error' : 'AI service unavailable' },
-      { status: 503 }
-    );
+    return handleApiError(err, 'Chat API');
   }
 }

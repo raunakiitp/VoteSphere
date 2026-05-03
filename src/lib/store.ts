@@ -1,78 +1,44 @@
 import { create } from 'zustand';
-
-export type JourneyStage = 'awareness' | 'eligibility' | 'preparation' | 'participation' | 'followup';
-export type Language = 'en' | 'hi';
-
-export interface UserProfile {
-  uid: string;
-  name: string;
-  email: string;
-  photoURL?: string;
-  age?: number;
-  region?: string;
-  voterId?: string;
-  isAdmin?: boolean;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  language?: Language;
-}
-
-export interface JourneyProgress {
-  awareness: boolean;
-  eligibility: boolean;
-  preparation: boolean;
-  participation: boolean;
-  followup: boolean;
-}
-
-export interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  emoji: string;
-  unlockedAt?: Date;
-}
+import { 
+  JourneyStage, Language, Theme, UserProfile, 
+  ChatMessage, JourneyProgress, Badge, EligibilityResult 
+} from '@/types';
 
 interface VoteSphereStore {
   // Auth
   user: UserProfile | null;
   setUser: (user: UserProfile | null) => void;
-
+  
   // Journey
   currentStage: JourneyStage;
   setCurrentStage: (stage: JourneyStage) => void;
   progress: JourneyProgress;
   completeStage: (stage: JourneyStage) => void;
-
+  
   // Badges
   badges: Badge[];
   unlockBadge: (badge: Badge) => void;
-
+  
   // Chat
   messages: ChatMessage[];
   addMessage: (msg: ChatMessage) => void;
   clearMessages: () => void;
-
+  
   // Language
   language: Language;
   setLanguage: (lang: Language) => void;
-
+  
   // Accessibility
   highContrast: boolean;
   largeText: boolean;
-  theme: 'light' | 'dark';
+  theme: Theme;
   toggleHighContrast: () => void;
   toggleLargeText: () => void;
   toggleTheme: () => void;
-
+  
   // Eligibility
-  eligibilityResult: { eligible: boolean; probability: number; reasons: string[] } | null;
-  setEligibilityResult: (result: { eligible: boolean; probability: number; reasons: string[] } | null) => void;
+  eligibilityResult: EligibilityResult | null;
+  setEligibilityResult: (result: EligibilityResult | null) => void;
 }
 
 export const useVoteSphereStore = create<VoteSphereStore>((set) => ({

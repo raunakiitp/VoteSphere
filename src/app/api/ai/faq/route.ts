@@ -1,28 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { askGemini } from '@/lib/gemini';
+import { SYSTEM_PROMPTS } from '@/lib/prompts';
+import { handleApiError } from '@/lib/error-handler';
+
+const faqSchema = z.object({
+  question: z.string().min(1).max(500)
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { question } = await req.json();
-    if (!question || typeof question !== 'string') {
-      return NextResponse.json({ error: 'Invalid question' }, { status: 400 });
-    }
-
-    const sanitized = question.trim().substring(0, 500);
-
-    const systemContext = `You are an FAQ answering system for VoteSphere, India's civic-tech election platform.
-Answer questions about Indian elections, voting procedures, ECI guidelines, voter rights, and electoral processes.
-Keep answers concise (2-4 sentences), factual, and cite relevant laws or ECI guidelines where applicable.
-Format: Start with a direct answer, then provide brief supporting detail.`;
+    const body = await req.json();
+    const { question } = faqSchema.parse(body);
 
     const answer = await askGemini(
-      `FAQ Question: ${sanitized}\n\nProvide a clear, factual answer about Indian elections and voting.`,
-      systemContext
+      `FAQ Question: ${question}\n\nProvide a clear, factual answer about Indian elections and voting.`,
+      SYSTEM_PROMPTS.faq
     );
 
     return NextResponse.json({ answer });
   } catch (err: unknown) {
-    console.error('[FAQ API] Error:', err);
-    return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 });
+    return handleApiError(err, 'FAQ API');
   }
 }

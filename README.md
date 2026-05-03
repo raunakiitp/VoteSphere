@@ -20,25 +20,39 @@ VoteSphere directly addresses the challenge of **low voter awareness and engagem
 2.  **Access**: Uses Gemini AI to provide instant, bilingual answers to complex civic questions.
 3.  **Logistics**: Uses Google Maps to eliminate friction in finding physical polling booths.
 
-## ☁️ Google Services Integration
+## 🏗️ Enterprise-Grade Architecture
 
-This project leverages the full power of the Google ecosystem to deliver a premium user experience:
-- **Google Gemini 1.5 Flash**: Orchestrates the AI Civic Guide and semantic search.
-- **Google Maps & Places**: Powers the Polling Intelligence map with real-time location data.
-- **Firebase Auth**: Provides secure, seamless Google Sign-In.
-- **Cloud Firestore**: Ensures real-time state persistence across the civic journey.
-- **Next.js on Google Cloud**: Architected for seamless deployment to Google Cloud Run.
+VoteSphere has been re-architected to meet 100% production-readiness standards:
 
-## 🛡️ Quality & Security Excellence
+### 🛡️ Core Reliability & Security
+- **Strict Runtime Validation**: Every API endpoint uses **Zod** for schema validation, preventing malformed data from reaching downstream services.
+- **Unified Error Handling**: Centralized `handleApiError` utility ensures consistent, secure responses that mask technical details while providing clear user feedback.
+- **Resilient AI Layer**: Integrated **Exponential Backoff** and retry logic for Google Gemini API calls to handle transient network issues or rate limits.
+- **Production Hardening**: Full CSP (Content Security Policy) and HSTS (Strict-Transport-Security) implementation for maximum frontend protection.
 
-- **100% Code Coverage**: Core logic and API routes are fully tested with Jest to ensure zero-regression reliability.
-- **A+ Security**: Hardened with strict Content Security Policy (CSP), HSTS, and server-side API proxying.
-- **WCAG Compliant**: Designed with accessibility-first principles (ARIA, high contrast, semantic HTML).
+### 🧩 Modular UI System
+- **Atomic Component Design**: Large components like `AICivicGuide` and `PollingMap` have been decomposed into small, focused sub-components.
+- **Custom Hook Extraction**: Encapsulated complex logic into reusable hooks like `useGoogleMaps` and `useSpeechRecognition`.
+- **State Optimization**: Optimized React rendering using `useMemo` and `useCallback` for derivated state and event handlers.
+- **Centralized Theming**: All visual tokens (colors, animations, constants) are managed in dedicated configuration files.
+
+### 🤖 Intelligent Features
+- **Bilingual Civic Guide**: Real-time voice & text assistance in English and Hindi.
+- **Geospatial Polling Intelligence**: Live map integration with crowd level predictions.
+- **Smart Eligibility Engine**: Probability-based assessment of voting eligibility.
+- **Automated Document Validator**: Instant feedback on ECI-approved documents.
+
+---
 
 ## 🛠️ Technology Stack
-
-- **Frontend**: Next.js 15+ (App Router), React 19, Tailwind CSS v4, Framer Motion.
-- **AI**: Google Gemini 1.5 Flash (via server-side proxy).
+- **Framework**: Next.js 15+ (App Router)
+- **AI Engine**: Google Gemini 2.0 Flash
+- **Database & Auth**: Firebase (Firestore, Auth, Analytics)
+- **Maps**: Google Maps Platform (Places API, Maps SDK)
+- **Validation**: Zod
+- **Styling**: Tailwind CSS v4 (Modern Design System)
+- **State Management**: Zustand (Global & Persistent)
+- **Icons**: Lucide React
 - **Backend/Auth**: Firebase Authentication (Google Sign-In), Firestore (State Persistence).
 - **Maps**: Google Maps JavaScript API & Google Places API.
 - **Icons**: Lucide React.
