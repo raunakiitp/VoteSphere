@@ -21,25 +21,70 @@ const CROWD_COLOR = ['text-emerald-400', 'text-amber-400', 'text-orange-400', 't
 const CROWD_BG = ['bg-emerald-500/10 border-emerald-500/20', 'bg-amber-500/10 border-amber-500/20', 'bg-orange-500/10 border-orange-500/20', 'bg-red-500/10 border-red-500/20'];
 const BEST_TIME = ['7:00 – 8:30 AM', '2:00 – 3:30 PM', '5:00 – 6:00 PM', '7:00 – 8:00 AM'];
 
+// Google Maps Types
+interface GoogleMap {
+  setCenter: (loc: { lat: number; lng: number }) => void;
+  setZoom: (zoom: number) => void;
+  panTo: (loc: { lat: number; lng: number }) => void;
+}
+
+interface GoogleMarker {
+  setMap: (map: GoogleMap | null) => void;
+  addListener: (event: string, cb: () => void) => void;
+}
+
+interface GooglePlace {
+  place_id: string;
+  name: string;
+  vicinity: string;
+  geometry: {
+    location: {
+      lat: () => number;
+      lng: () => number;
+    };
+  };
+}
+
+declare global {
+  interface Window {
+    initVoteSphereMap?: () => void;
+    google: {
+      maps: {
+        Map: new (el: HTMLElement, opt: object) => GoogleMap;
+        Marker: new (opt: object) => GoogleMarker;
+        SymbolPath: { CIRCLE: number };
+        places: {
+          PlacesService: new (map: GoogleMap) => {
+            nearbySearch: (opt: object, cb: (res: GooglePlace[] | null, status: string) => void) => void;
+          };
+          PlacesServiceStatus: { OK: string };
+        };
+      };
+    };
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+  }
+}
+
 export default function PollingMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<any>(null);
+  const [map, setMap] = useState<GoogleMap | null>(null);
   const [stations, setStations] = useState<Station[]>([]);
   const [sel, setSel] = useState<Station | null>(null);
   const [locating, setLocating] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const markersRef = useRef<any[]>([]);
+  const markersRef = useRef<GoogleMarker[]>([]);
 
   useEffect(() => {
     if (!apiKey || apiKey.includes('your_')) return;
 
     // Define the callback globally before loading the script
     const callbackName = 'initVoteSphereMap';
-    (window as any)[callbackName] = () => {
+    window.initVoteSphereMap = () => {
       setMapReady(true);
       if (!mapRef.current) return;
-      const initialMap = new (window as any).google.maps.Map(mapRef.current, {
+      const initialMap = new window.google.maps.Map(mapRef.current, {
         zoom: 12, center: { lat: 28.6139, lng: 77.2090 },
         styles: [
           { elementType: 'geometry', stylers: [{ color: '#0b1120' }] },
@@ -56,8 +101,8 @@ export default function PollingMap() {
     };
 
     // If already loaded, call the init directly
-    if ((window as any).google?.maps?.places) {
-      (window as any)[callbackName]();
+    if (window.google?.maps?.places) {
+      window.initVoteSphereMap();
       return;
     }
 
@@ -75,7 +120,7 @@ export default function PollingMap() {
 
     return () => {
       // Cleanup the global callback on unmount
-      delete (window as any)[callbackName];
+      delete window.initVoteSphereMap;
     };
   }, [apiKey]);
 
@@ -89,35 +134,35 @@ export default function PollingMap() {
         map.setZoom(14);
         
         // Add user marker
-        new (window as any).google.maps.Marker({
+        new window.google.maps.Marker({
           position: userLoc, map, title: 'You are here',
           icon: {
-            path: (window as any).google.maps.SymbolPath.CIRCLE,
+            path: window.google.maps.SymbolPath.CIRCLE,
             scale: 8, fillColor: '#3b82f6', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2,
           }
         });
 
         // Search for nearby schools/community centers
-        const service = new (window as any).google.maps.places.PlacesService(map);
+        const service = new window.google.maps.places.PlacesService(map);
         service.nearbySearch({
           location: userLoc,
           radius: 3000,
           type: ['school']
-        }, (results: any, status: any) => {
+        }, (results: GooglePlace[] | null, status: string) => {
           setLocating(false);
-          if (status === (window as any).google.maps.places.PlacesServiceStatus.OK && results) {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
             markersRef.current.forEach(m => m.setMap(null));
             markersRef.current = [];
             
-            const newStations: Station[] = results.slice(0, 5).map((place: any, i: number) => {
+            const newStations: Station[] = results.slice(0, 5).map((place: GooglePlace) => {
               const crowdLevel = Math.floor(Math.random() * 4);
               const lat = place.geometry.location.lat();
               const lng = place.geometry.location.lng();
               
-              const marker = new (window as any).google.maps.Marker({
+              const marker = new window.google.maps.Marker({
                 position: { lat, lng }, map, title: place.name,
                 icon: {
-                  path: (window as any).google.maps.SymbolPath.CIRCLE,
+                  path: window.google.maps.SymbolPath.CIRCLE,
                   scale: 10,
                   fillColor: ['#10b981','#f59e0b','#f97316','#ef4444'][crowdLevel],
                   fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2,
@@ -187,7 +232,7 @@ export default function PollingMap() {
           {stations.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-slate-500">
               <MapPin size={24} className="mb-3 opacity-20" />
-              <p className="text-sm">Click "Find Near Me" to locate real polling booths around your current location.</p>
+              <p className="text-sm">Click &quot;Find Near Me&quot; to locate real polling booths around your current location.</p>
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto scroll-thin divide-y divide-white/[0.04]">

@@ -154,7 +154,7 @@ export default function DocumentValidator() {
             </div>
             <p className="text-xs text-slate-400 leading-relaxed mb-4">
               According to ECI guidelines, voters must carry their EPIC card to the polling booth. 
-              If you don't have it, you must present one of the **12 alternative documents** validated here.
+              If you don&apos;t have it, you must present one of the **12 alternative documents** validated here.
             </p>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-[10px] text-slate-500">

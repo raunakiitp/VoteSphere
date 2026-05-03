@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
 
   // ── Type safety (errors caught in dev, not blocking prod builds) ──
   typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
 
   // ── Performance: Image optimization ──────────────────────────────
   images: {
@@ -28,6 +27,7 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=(self)' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
           {
             key: 'Content-Security-Policy',
             value: [

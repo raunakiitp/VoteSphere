@@ -33,7 +33,7 @@ const config: Config = {
     },
   },
   plugins: [],
-  // @ts-ignore
+  // @ts-expect-error - Safelist is valid but type definition may lag
   safelist: [
     'border-blue-500/20', 'border-cyan-500/20', 'border-violet-500/20', 'border-emerald-500/20', 'border-amber-500/20', 'border-rose-500/20',
     'border-blue-500/40', 'border-cyan-500/40', 'border-violet-500/40', 'border-emerald-500/40', 'border-amber-500/40', 'border-rose-500/40',

@@ -10,6 +10,34 @@ import toast from 'react-hot-toast';
 
 function genId() { return Math.random().toString(36).slice(2, 11); }
 
+interface SpeechRecognitionEvent extends Event {
+  results: {
+    [key: number]: {
+      [key: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface SpeechRecognitionInstance {
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: Event) => void;
+  onend: (event: Event) => void;
+  start: () => void;
+  stop: () => void;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
+
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
+
 const QUICK = {
   en: ['How to register to vote?', 'What documents do I need?', 'Where is my polling station?', 'What is NOTA?'],
   hi: ['मतदाता पंजीकरण कैसे करें?', 'कौन से दस्तावेज़ चाहिए?', 'मतदान केंद्र कैसे खोजें?', 'NOTA क्या है?'],
@@ -22,7 +50,7 @@ export default function AICivicGuide() {
   const [voice, setVoice] = useState(false);
   const [listening, setListening] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const recRef = useRef<any>(null);
+  const recRef = useRef<SpeechRecognitionInstance | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -39,7 +67,7 @@ export default function AICivicGuide() {
           : "Hello! I'm VoteSphere's AI Civic Guide, powered by Google Gemini. Ask me anything about elections, voter registration, polling stations, or your rights as a voter.",
       });
     }
-  }, []);
+  }, [messages.length, addMessage, language]);
 
   const send = async (text?: string) => {
     const msg = (text ?? input).trim();
@@ -68,9 +96,10 @@ export default function AICivicGuide() {
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utt);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[AI Chat Error]', err);
-      toast.error(err.message?.includes('503') || err.message?.includes('unavailable')
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(errorMessage.includes('503') || errorMessage.includes('unavailable')
         ? 'AI service is temporarily busy. Please try again in a moment.'
         : 'Could not get a response. Please try again.');
     } finally {
@@ -80,12 +109,12 @@ export default function AICivicGuide() {
   };
 
   const toggleMic = () => {
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { toast.error('Speech recognition not supported.'); return; }
     if (listening) { recRef.current?.stop(); setListening(false); return; }
     const r = new SR();
     r.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
-    r.onresult = (e: any) => { setInput(e.results[0][0].transcript); setListening(false); };
+    r.onresult = (e: SpeechRecognitionEvent) => { setInput(e.results[0][0].transcript); setListening(false); };
     r.onerror = r.onend = () => setListening(false);
     recRef.current = r;
     r.start(); setListening(true);
@@ -109,10 +138,15 @@ export default function AICivicGuide() {
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => setVoice(!voice)}
-            className={`btn-ghost ${voice ? 'text-blue-400' : 'text-slate-500'}`} title="Toggle voice">
+            className={`btn-ghost ${voice ? 'text-blue-400' : 'text-slate-500'}`} 
+            title="Toggle voice"
+            aria-label="Toggle voice response">
             {voice ? <Volume2 size={15} /> : <VolumeX size={15} />}
           </button>
-          <button onClick={() => { clearMessages(); }} className="btn-ghost text-slate-500" title="Clear chat">
+          <button onClick={() => { clearMessages(); }} 
+            className="btn-ghost text-slate-500" 
+            title="Clear chat"
+            aria-label="Clear chat history">
             <RefreshCw size={14} />
           </button>
         </div>

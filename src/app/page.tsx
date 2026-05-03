@@ -3,14 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
-import JourneyTracker from '@/components/JourneyTracker';
 import AICivicGuide from '@/components/AICivicGuide';
-import EligibilityEngine from '@/components/EligibilityEngine';
-import PollingMap from '@/components/PollingMap';
-import DocumentValidator from '@/components/DocumentValidator';
-import ElectionTimeline from '@/components/ElectionTimeline';
-import FAQEngine from '@/components/FAQEngine';
-import BadgeSystem from '@/components/BadgeSystem';
 import { useVoteSphereStore } from '@/lib/store';
 import {
   Vote, Bot, CheckSquare, MapPin, FileText,
@@ -88,7 +81,7 @@ export default function HomePage() {
     completeStage('awareness');
     unlockBadge({ id: 'awareness_done', name: 'Informed Voter', description: 'Completed Awareness', emoji: '' });
     if (user) unlockBadge({ id: 'first_login', name: 'Civic Pioneer', description: 'Joined VoteSphere', emoji: '' });
-  }, [user]);
+  }, [user, completeStage, unlockBadge]);
 
   const t = TEXT[language];
 

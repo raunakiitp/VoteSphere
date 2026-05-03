@@ -1,7 +1,7 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { FirebaseApp, initializeApp, getApps, getApp } from 'firebase/app';
+import { Auth, getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { Firestore, getFirestore } from 'firebase/firestore';
+import { FirebaseStorage, getStorage } from 'firebase/storage';
 
 // Guard: only initialize when real config is present.
 // During SSR/build, env vars for NEXT_PUBLIC_ are embedded at build-time.
@@ -19,14 +19,14 @@ const firebaseConfig = {
 // Only initialize if we have a valid API key to avoid SSR errors
 const hasValidConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.apiKey.length > 10);
 
-const app = hasValidConfig
+const app: FirebaseApp = hasValidConfig
   ? (getApps().length ? getApp() : initializeApp(firebaseConfig))
-  : (getApps().length ? getApp() : initializeApp(firebaseConfig)); // still init so hooks don't crash
+  : (getApps().length ? getApp() : initializeApp(firebaseConfig)); 
 
-let auth = {} as any;
-let db = {} as any;
-let storage = {} as any;
-let googleProvider = {} as any;
+let auth: Auth;
+let db: Firestore;
+let storage: FirebaseStorage;
+let googleProvider: GoogleAuthProvider;
 
 if (typeof window !== 'undefined') {
   try {
@@ -38,7 +38,17 @@ if (typeof window !== 'undefined') {
     googleProvider.addScope('email');
   } catch (error) {
     console.error("Firebase init error:", error);
+    // Fallbacks for type safety
+    auth = {} as Auth;
+    db = {} as Firestore;
+    storage = {} as FirebaseStorage;
+    googleProvider = {} as GoogleAuthProvider;
   }
+} else {
+  auth = {} as Auth;
+  db = {} as Firestore;
+  storage = {} as FirebaseStorage;
+  googleProvider = {} as GoogleAuthProvider;
 }
 
 export { auth, db, storage, googleProvider };

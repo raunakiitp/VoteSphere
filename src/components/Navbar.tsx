@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useVoteSphereStore } from '@/lib/store';
 import { signInWithPopup, signOut } from 'firebase/auth';
@@ -38,8 +39,9 @@ export default function Navbar() {
     try {
       await signInWithPopup(auth, googleProvider);
       toast.success(language === 'hi' ? 'आपका स्वागत है!' : 'Welcome to VoteSphere!');
-    } catch (e: any) {
-      if (e.code !== 'auth/popup-closed-by-user') toast.error(language === 'hi' ? 'लॉगिन विफल' : 'Sign in failed.');
+    } catch (e: unknown) {
+      const error = e as { code?: string };
+      if (error.code !== 'auth/popup-closed-by-user') toast.error(language === 'hi' ? 'लॉगिन विफल' : 'Sign in failed.');
     }
   };
 
@@ -70,14 +72,16 @@ export default function Navbar() {
           {/* Theme Toggle */}
           <button onClick={toggleTheme}
             className="btn-ghost hidden sm:flex text-xs font-semibold text-slate-400 hover:text-white"
-            title="Toggle Day/Night">
+            title="Toggle Day/Night"
+            aria-label="Toggle light and dark theme">
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
           </button>
 
           {/* Language */}
           <button onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
             className="btn-ghost hidden sm:flex text-xs font-semibold"
-            title="Toggle language">
+            title="Toggle language"
+            aria-label="Switch language">
             <Globe size={14} />
             {language === 'en' ? 'हिं' : 'EN'}
           </button>
@@ -85,12 +89,14 @@ export default function Navbar() {
           {/* Accessibility */}
           <button onClick={toggleHighContrast}
             className={`btn-ghost hidden sm:flex ${highContrast ? 'text-yellow-400 bg-yellow-400/10' : ''}`}
-            title="High contrast">
+            title="High contrast"
+            aria-label="Toggle high contrast mode">
             <Contrast size={14} />
           </button>
           <button onClick={toggleLargeText}
             className={`btn-ghost hidden sm:flex ${largeText ? 'text-blue-400 bg-blue-400/10' : ''}`}
-            title="Large text">
+            title="Large text"
+            aria-label="Toggle larger text size">
             <Type size={14} />
           </button>
 
@@ -103,7 +109,7 @@ export default function Navbar() {
           )}
 
           {/* Notifications */}
-          <button className="btn-ghost relative text-slate-400 hover:text-white" title="Notifications">
+          <button className="btn-ghost relative text-slate-400 hover:text-white" title="Notifications" aria-label="View notifications">
             <Bell size={14} />
             <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
           </button>
@@ -112,13 +118,14 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-2">
               {user.photoURL && (
-                <img src={user.photoURL} alt="" className="w-7 h-7 rounded-full ring-2 ring-blue-500/30" />
+                <Image src={user.photoURL} alt={user.name || 'User Profile'} width={28} height={28} className="w-7 h-7 rounded-full ring-2 ring-blue-500/30" />
               )}
               <button onClick={() => {
                 if (user.uid === 'mock-uid') { setUser(null); toast.success('Signed out'); return; }
                 signOut(auth).then(() => toast.success('Signed out'))
               }}
-                className="btn-ghost hidden sm:flex text-xs">
+                className="btn-ghost hidden sm:flex text-xs"
+                aria-label="Sign out">
                 <LogOut size={14} />
               </button>
             </div>
@@ -130,7 +137,8 @@ export default function Navbar() {
 
           {/* Mobile menu toggle */}
           <button onClick={() => setOpen(!open)}
-            className="lg:hidden btn-ghost ml-1">
+            className="lg:hidden btn-ghost ml-1"
+            aria-label="Toggle menu">
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>

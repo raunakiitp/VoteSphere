@@ -138,17 +138,17 @@ describe('POST /api/ai/chat - errors', () => {
 
 // ─── Rate limiting ───────────────────────────────────────────────────────────
 describe('POST /api/ai/chat - rate limiting', () => {
-  it('should allow requests below rate limit', async () => {
-    const req = makeRequest({ message: 'Test', language: 'en', history: [] }, '192.168.1.1');
+  it('should return 429 when rate limit is exceeded', async () => {
+    const ip = '1.2.3.4';
+    // Rate limit is 20 per minute. Send 20 requests.
+    for (let i = 0; i < 20; i++) {
+      const req = makeRequest({ message: 'Test', language: 'en' }, ip);
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+    }
+    // 21st request should be blocked
+    const req = makeRequest({ message: 'Test', language: 'en' }, ip);
     const res = await POST(req);
-    expect(res.status).toBe(200);
-  });
-
-  it('should include reply in successful response', async () => {
-    mockAskGemini.mockResolvedValue('Election info here');
-    const req = makeRequest({ message: 'Test query', language: 'en', history: [] }, '10.0.0.1');
-    const res = await POST(req);
-    const data = await res.json();
-    expect(data.reply).toBe('Election info here');
+    expect(res.status).toBe(429);
   });
 });

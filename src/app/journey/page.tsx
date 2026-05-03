@@ -6,12 +6,13 @@ import JourneyTracker from '@/components/JourneyTracker';
 import BadgeSystem from '@/components/BadgeSystem';
 import { 
   ArrowRight, CheckCircle, Info, ExternalLink, 
-  UserPlus, FileCheck, MapPin, Vote, Award 
+  UserPlus, FileCheck, MapPin, Vote, Award,
+  LucideIcon
 } from 'lucide-react';
 import Link from 'next/link';
 
 interface Stage {
-  icon: any;
+  icon: LucideIcon;
   title: string;
   desc: string;
   steps: string[];
@@ -85,7 +86,7 @@ const STAGE_CONTENT: Record<string, Stage> = {
 };
 
 export default function JourneyPage() {
-  const { currentStage, completeStage, language } = useVoteSphereStore();
+  const { currentStage, completeStage } = useVoteSphereStore();
   const stage = STAGE_CONTENT[currentStage] || STAGE_CONTENT.awareness;
   const Icon = stage.icon;
 

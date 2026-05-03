@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useVoteSphereStore } from '@/lib/store';
 import {
   LayoutDashboard, Users, Activity, MessageSquare, Bell,
   ArrowLeft, Vote, TrendingUp, Eye, CheckCircle,
   FileText, MapPin, Trash2, Plus, AlertCircle, Info,
-  ChevronRight, Loader2, BarChart3
+  BarChart3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -121,7 +122,7 @@ export default function AdminPage() {
           </div>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          {user.photoURL && <img src={user.photoURL} alt="" className="w-7 h-7 rounded-full" />}
+          {user.photoURL && <Image src={user.photoURL} alt="" width={28} height={28} className="w-7 h-7 rounded-full" />}
           <p className="text-sm text-white font-medium">{user.name}</p>
         </div>
       </header>
@@ -317,7 +318,7 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <label className="label">Type</label>
-                    <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as any }))} className="select">
+                    <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as 'info' | 'warning' | 'success' }))} className="select">
                       <option value="info">Info</option>
                       <option value="warning">Warning</option>
                       <option value="success">Success</option>

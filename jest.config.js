@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({ dir: './' });
@@ -9,6 +10,7 @@ const customJestConfig = {
   // Collect coverage from lib and core logic files
   collectCoverageFrom: [
     'src/lib/**/*.{ts,tsx}',
+    'src/app/api/**/*.{ts,tsx}',
     '!src/lib/firebase.ts',
   ],
 

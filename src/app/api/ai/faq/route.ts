@@ -21,7 +21,8 @@ Format: Start with a direct answer, then provide brief supporting detail.`;
     );
 
     return NextResponse.json({ answer });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    console.error('[FAQ API] Error:', err);
     return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 });
   }
 }

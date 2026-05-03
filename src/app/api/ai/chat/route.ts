@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     const sanitized = message.trim().substring(0, 1000);
 
     const historyContext = history?.length
-      ? `\n\nConversation history:\n${history.map((h: any) => `${h.role}: ${h.content}`).join('\n')}\n\nCurrent question:`
+      ? `\n\nConversation history:\n${history.map((h: { role: string; content: string }) => `${h.role}: ${h.content}`).join('\n')}\n\nCurrent question:`
       : '';
 
     const systemContext = `You are VoteSphere's AI Civic Guide — India's premier election assistance AI powered by Google Gemini.
@@ -57,8 +57,8 @@ ${language === 'hi' ? 'User prefers Hindi. Respond in Hindi.' : 'Respond in Engl
     const reply = await askGemini(historyContext ? `${historyContext} ${sanitized}` : sanitized, systemContext);
 
     return NextResponse.json({ reply });
-  } catch (err: any) {
-    const msg = err?.message || String(err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     console.error('[Chat API] Gemini error:', msg);
     return NextResponse.json(
       { error: msg.includes('API key') ? 'API key error' : 'AI service unavailable' },
